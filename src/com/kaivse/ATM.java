@@ -1,52 +1,54 @@
 package com.kaivse;
 
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
 import java.util.Scanner;
 
 public class ATM {
     static Scanner inputParams = new Scanner(System.in);
 
-    public static void main(String[] args) throws NoSuchAlgorithmException, InvalidKeyException {
-        Bank bank = new Bank("ATM");
-        User user = bank.addNewUser("I", "I", "1234", "1234");
+    public static void main(String[] args) {
+        Bank bank = new Bank("ATM-example");
 
-        Account account = new Account("string", user);
+        User user = bank.addNewUser("Tom", "Tom", "1234");
+        Account account = new Account("check", user, bank);
         user.addAccount(account);
-
         bank.addAccount(account);
 
-        User curUser;
+        User atmUser;
         while (true) {
-            loginMenu();
-            welcomeMenu();
+            atmUser = loginUserMenu(bank, inputParams);
+            welcomeMenu(atmUser, inputParams);
         }
     }
 
-    public static void loginMenu() throws NoSuchAlgorithmException, InvalidKeyException {
-        final String ALGORITHM = "HmacSHA256";
-        System.out.printf("Добро пожаловать!\n");
+    public static User loginUserMenu(Bank bank, Scanner inputParams) {
+        String loginID;
+        String password;
+        User authorizedUser;
+        do {
+            System.out.println("Enter login: ");
+            loginID = inputParams.next();
+            System.out.println("Enter password: ");
+            password = inputParams.next();
 
-        String loginID = Account.getUniqueID();
-        System.out.println("Введите логин: " + loginID);
-        System.out.println("Введите пароль: ");
-        String password = inputParams.next();
-        password = HmacUtils.calculateHmac(password, ALGORITHM);
-        System.out.println("Пользователь с " + loginID + " добавлен");
-
-        welcomeMenu();
+            authorizedUser = bank.checkUserLogin(loginID, password);
+            if (authorizedUser == null) {
+                System.out.println("u make a mistake in login/password " +
+                        "Please try again...");
+            }
+        }
+        while (authorizedUser == null);
+        return authorizedUser;
     }
 
-    public static void welcomeMenu() {
-        Bank bank = new Bank("ATM");
+    public static void welcomeMenu(User bankUser, Scanner inputParams) {
         int yourChoice;
         do {
-            System.out.println("Выберите пункт меню:");
-            System.out.println("  " + 1 + ".  Пополнить счет");
-            System.out.println("  " + 2 + ".  Снять со счёта");
-            System.out.println("  " + 3 + ".  Перевести сумму со счёта");
-            System.out.println("  " + 4 + ".  История операций");
-            System.out.println("  " + 5 + ".  Выйти");
+            System.out.println("Choice a menu item: ");
+            System.out.println("  " + 1 + ".  Deposit a bank account: ");
+            System.out.println("  " + 2 + ".  Withdraw from bank account: ");
+            System.out.println("  " + 3 + ".  Transfer from bank account: ");
+            System.out.println("  " + 4 + ".  Check your balance: ");
+            System.out.println("  " + 5 + ".  Quit");
 
             yourChoice = inputParams.nextInt();
             if (yourChoice < 1 || yourChoice > 5) {
@@ -56,44 +58,37 @@ public class ATM {
         while (yourChoice < 1 || yourChoice > 5);
         switch (yourChoice) {
             case 1:
-                depositFunds();
+                System.out.println("Deposit a bank account");
+                depositFunds(bankUser, inputParams);
                 break;
             case 2:
-                System.out.println("Снятие со счета");
+                System.out.println("Withdraw from bank account");
                 System.out.println(withdrawFunds());
                 break;
             case 3:
-                System.out.println("Перевести со счета");
+                System.out.println("Transfer from bank account");
                 transferFunds();
                 break;
             case 4:
+                System.out.println("Check your balance");
                 showTransactionHistory();
                 break;
             case 5:
                 inputParams.next();
                 break;
         }
-        if (yourChoice > 5) {
-            System.out.println("Выберите пункт");
+        if (yourChoice != 5) {
+            System.out.println("Choice a menu item: ");
+            welcomeMenu(bankUser, inputParams);
         }
     }
 
-    public static void depositFunds() {
-        System.out.println("Введите имя");
-        String name = inputParams.next();
-        System.out.println("Укажите фамилию");
-        String lastName = inputParams.next();
-        System.out.println("loginID");
-        String loginID = inputParams.next();
-        System.out.println("Укажите пароль");
-        String pass = inputParams.next();
-
-        Account account = new Account("", new User(name, lastName, loginID, pass));
-        System.out.println("Сумма пополнения: ");
+    public static void depositFunds(User user, Scanner inputParams) {
+        System.out.println("Deposit amount: ");
         double amount = Double.parseDouble(inputParams.next());
-        System.out.println("Комментарий: ");
+        System.out.println("Your comment for this deposit: ");
         String comment = inputParams.next();
-        account.addTransaction(amount, comment);
+        user.addTransactionToAcc(amount, comment);
     }
 
     public static double withdrawFunds() {
@@ -109,7 +104,7 @@ public class ATM {
 
 
     public static void showTransactionHistory() {
-        System.out.println("История операций: ");
+        System.out.println("Check your balance: ");
         System.out.println(Account.getBalance());
     }
 }

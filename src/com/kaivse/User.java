@@ -1,7 +1,6 @@
 package com.kaivse;
 
 import java.util.ArrayList;
-import java.util.UUID;
 
 /**
  * @author Ivan Kalinin 16.10.2022
@@ -14,42 +13,50 @@ public class User {
     ArrayList<Account> accounts;
     final String ALGORITHM = "HmacSHA256";
 
-    public User(String name, String lastName, String loginID, String password) {
+    public User(String name, String lastName, String password, Bank bank) {
         this.name = name;
         this.lastName = lastName;
 
         try {
-            this.password = HmacUtils.calculateHmac(password, ALGORITHM);
+            HmacUtils.calculateHmac(password, ALGORITHM);
         } catch (Exception e) {
-            System.err.println("error! : " + e.getMessage());
-            System.exit(1);
+            System.out.println("error : " + e.getMessage());
         }
 
-        this.loginID = getNewUniqueID();
+        this.loginID = bank.getUserUniqueID();
         this.accounts = new ArrayList<>();
-        System.out.printf("Новый пользователь %s %s" + '\n'
-                        + "с ID %s был создан.\n",
+        System.out.printf("Тew user %s %s" + '\n'
+                        + "with ID %s has been created.\n",
                 lastName, name, this.loginID);
+    }
+
+    public String getLoginID() {
+        return loginID;
     }
 
     public void addAccount(Account account) {
         this.accounts.add(account);
     }
 
-    public static String getNewUniqueID() {
-        final int maxLength = 4;
-        String uuid = UUID.randomUUID().toString();
-        String requestId = uuid.replaceAll("[^0-9]", "");
-        String subString = requestId.substring(0, maxLength);
+    public void addTransactionToAcc(double amount, String comment) {
+        this.accounts.get(0).addTransaction(amount, comment);
+    }
 
-        return subString;
+    public boolean validatePass(String password) {
+        try {
+            return Boolean.parseBoolean(String.valueOf(HmacUtils.calculateHmac(password, ALGORITHM)
+                    .equals(HmacUtils.calculateHmac(password, ALGORITHM))));
+        } catch (Exception e) {
+            System.out.println("error : " + e.getMessage());
+        }
+        return false;
     }
 
     @Override
     public String toString() {
         return "User: " + '\n' +
-                " имя = " + name + '\n' +
-                " пароль = " + password + '\n' +
-                " фамилия= " + lastName + '\n';
+                " name = " + name + '\n' +
+                " password = " + password + '\n' +
+                " lastname = " + lastName + '\n';
     }
 }
