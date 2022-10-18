@@ -1,6 +1,7 @@
 package com.kaivse;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author Ivan Kalinin 16.10.2022
@@ -10,7 +11,7 @@ public class User {
     String lastName;
     String loginID;
     String password;
-    ArrayList<Account> accounts;
+    List<Account> accounts;
     final String ALGORITHM = "HmacSHA256";
 
     public User(String name, String lastName, String password, Bank bank) {

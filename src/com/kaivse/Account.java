@@ -1,6 +1,7 @@
 package com.kaivse;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author Ivan Kalinin 16.10.2022
@@ -9,7 +10,7 @@ public class Account {
     String nameAccount;
     String loginID;
     User cardHolder;
-    static ArrayList<Transactions> transactions;
+    static List<Transactions> transactions;
 
     public Account(String nameAccount, User cardHolder, Bank bank) {
         this.nameAccount = nameAccount;

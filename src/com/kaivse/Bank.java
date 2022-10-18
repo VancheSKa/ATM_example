@@ -1,6 +1,7 @@
 package com.kaivse;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -8,8 +9,8 @@ import java.util.UUID;
  */
 public class Bank {
     String bankName;
-    ArrayList<User> users;
-    ArrayList<Account> accounts;
+    List<User> users;
+    List<Account> accounts;
 
     public Bank(String bankName) {
         this.bankName = bankName;
